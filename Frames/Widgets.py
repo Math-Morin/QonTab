@@ -59,7 +59,7 @@ class DefaultValuesGroup(QGroupBox):
         self.defaultValuesTable.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.defaultValuesTable.verticalHeader().hide()
         self.defaultValuesTable.setColumnCount(9)
-        self.defaultValuesTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Year', 'Month', 'Day', 'Decription', 'Type', 'Subtype', 'Amount'])
+        self.defaultValuesTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Year', 'Month', 'Day', 'Type', 'Subtype', 'Amount', 'Decription'])
         self.defaultValuesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.defaultValuesTable.horizontalHeader().setStretchLastSection(True)
         self.defaultValuesTable.setRowCount(1)
@@ -92,21 +92,21 @@ class DefaultValuesGroup(QGroupBox):
         self.dayDefaultSB.setSpecialValueText('-')
         self.defaultValuesTable.setCellWidget(0, 4, self.dayDefaultSB)
 
-        self.defaultTransactionDesc = QLineEdit(self)
-        self.defaultValuesTable.setCellWidget(0, 5, self.defaultTransactionDesc)
-
         self.transTypeDefaultCB = QComboBox(self)
         self.transTypeDefaultCB.setEditable(True)
         self.transTypeDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        self.defaultValuesTable.setCellWidget(0, 6, self.transTypeDefaultCB)
+        self.defaultValuesTable.setCellWidget(0, 5, self.transTypeDefaultCB)
 
         self.transSubtypeDefaultCB = QComboBox(self)
         self.transSubtypeDefaultCB.setEditable(True)
         self.transSubtypeDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        self.defaultValuesTable.setCellWidget(0, 7, self.transSubtypeDefaultCB)
+        self.defaultValuesTable.setCellWidget(0, 6, self.transSubtypeDefaultCB)
 
         self.amountDefaultDSB = QDoubleSpinBox(self)
-        self.defaultValuesTable.setCellWidget(0, 8, self.amountDefaultDSB)
+        self.defaultValuesTable.setCellWidget(0, 7, self.amountDefaultDSB)
+
+        self.defaultTransactionDesc = QLineEdit(self)
+        self.defaultValuesTable.setCellWidget(0, 8, self.defaultTransactionDesc)
 
         # Buttons widget
         valuesButtonsWidget = QWidget(self)
@@ -154,21 +154,21 @@ class DefaultValuesGroup(QGroupBox):
         daySB.setValue(self.dayDefaultSB.value())
         table.setCellWidget(0, 4, daySB)
 
-        table.setItem(0, 5, QTableWidgetItem(self.defaultTransactionDesc.text()))
-
         transTypeCB = QComboBox()
         transTypeCB.insertItems(0, [self.transTypeDefaultCB.itemText(i) for i in range(self.transTypeDefaultCB.count())])
         transTypeCB.setCurrentText(self.transTypeDefaultCB.currentText())
-        table.setCellWidget(0, 6, transTypeCB)
+        table.setCellWidget(0, 5, transTypeCB)
 
         transSubtypeCB = QComboBox()
         transSubtypeCB.insertItems(0, [self.transSubtypeDefaultCB.itemText(i) for i in range(self.transSubtypeDefaultCB.count())])
         transSubtypeCB.setCurrentText(self.transSubtypeDefaultCB.currentText())
-        table.setCellWidget(0, 7, transSubtypeCB)
+        table.setCellWidget(0, 6, transSubtypeCB)
 
         amountDSB = QDoubleSpinBox()
         amountDSB.setValue(self.amountDefaultDSB.value())
-        table.setCellWidget(0, 8, amountDSB)
+        table.setCellWidget(0, 7, amountDSB)
+
+        table.setItem(0, 8, QTableWidgetItem(self.defaultTransactionDesc.text()))
 
 
 class InsertionsTableGroup(QGroupBox):
@@ -186,7 +186,7 @@ class InsertionsTableGroup(QGroupBox):
         self.insertionsTable = QTableWidget(self)
         self.insertionsTable.setColumnCount(9)
         self.insertionsTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        self.insertionsTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Year', 'Month', 'Day', 'Decription', 'Type', 'Subtype', 'Amount'])
+        self.insertionsTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Year', 'Month', 'Day', 'Type', 'Subtype', 'Amount', 'Decription'])
         self.insertionsTable.horizontalHeader().setStretchLastSection(True)
         insertionTableGridLayout.addWidget(self.insertionsTable, 0, 0, 10, 1)
 
