@@ -7,6 +7,7 @@ class CentralWidget(QWidget):
 
     def __init__(self, parent):
         super(CentralWidget, self).__init__(parent)
+        self.parent = parent
         self.initLayout()
 
     def initLayout(self):
@@ -23,9 +24,9 @@ class CentralWidget(QWidget):
         insertionTab.setLayout(insertionTabGridLayout)
 
         ## Insertion tab : Groups
-        self.defaultValuesGroup = DefaultValuesGroup('Default Values', insertionTab)
+        self.defaultValuesGroup = DefaultValuesGroup('Default Values', self)
         insertionTabGridLayout.addWidget(self.defaultValuesGroup, 0, 0, 1, 1)
-        self.insertionsTableGroup = InsertionsTableGroup('Insertions', insertionTab)
+        self.insertionsTableGroup = InsertionsTableGroup('Insertions', self)
         insertionTabGridLayout.addWidget(self.insertionsTableGroup, 1, 0, 4, 1)
 
         # Visualize tab
@@ -43,6 +44,7 @@ class DefaultValuesGroup(QGroupBox):
 
     def __init__(self, title, parent):
         super(QGroupBox, self).__init__(title, parent)
+        self.parent = parent
         self.initLayout()
         self.initBehavior()
 
@@ -70,21 +72,28 @@ class DefaultValuesGroup(QGroupBox):
         self.sharedCheckBox = QCheckBox(self)
         valuesHBox.addWidget(self.sharedCheckBox)
 
+        currentDate = QtCore.QDate.currentDate()
+
         yearLabel = QLabel('Year:')
         valuesHBox.addWidget(yearLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.yearBox = QSpinBox(self)
+        self.yearBox.setRange(2000,2100)
+        self.yearBox.setValue(currentDate.year())
         valuesHBox.addWidget(self.yearBox)
 
         monthLabel = QLabel('Month:')
         valuesHBox.addWidget(monthLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.monthBox = QComboBox(self)
-        self.monthBox.addItems([None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+        self.monthBox = QSpinBox(self)
+        self.monthBox.setRange(0, 12)
+        self.monthBox.setSpecialValueText('-')
+        self.monthBox.setValue(currentDate.month())
         valuesHBox.addWidget(self.monthBox)
 
         dayLabel = QLabel('Day:')
         valuesHBox.addWidget(dayLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.dayBox = QComboBox(self)
-        self.dayBox.addItems([str(x) for x in range(1, 32)])
+        self.dayBox = QSpinBox(self)
+        self.dayBox.setRange(0, 31)
+        self.dayBox.setSpecialValueText('-')
         valuesHBox.addWidget(self.dayBox)
 
         transactionDescLabel = QLabel('Description:')
@@ -127,8 +136,49 @@ class DefaultValuesGroup(QGroupBox):
         self.insertRowButton.clicked.connect(self.insertRow)
 
     def insertRow(self):
-        return
-        # parent.insertionsTableGroup.
+        table = self.parent.insertionsTableGroup.insertionsTable
+        table.insertRow(0)
+
+        transactorCB = QComboBox()
+        transactorCB.insertItems(0, [self.transactorBox.itemText(i) for i in range(self.transactorBox.count())])
+        transactorCB.setCurrentText(self.transactorBox.currentText())
+        table.setCellWidget(0, 0, transactorCB)
+
+        sharedCB = QComboBox()
+        sharedCB.insertItems(0, ['no', 'yes'])
+        sharedCB.setCurrentIndex(self.sharedCheckBox.checkState() == QtCore.Qt.Checked)
+        table.setCellWidget(0, 1, sharedCB)
+
+        yearSB = QSpinBox()
+        yearSB.setRange(2000, 2100)
+        yearSB.setValue(self.yearBox.value())
+        table.setCellWidget(0, 2, yearSB)
+
+        monthSB = QSpinBox()
+        monthSB.setRange(0, 12)
+        monthSB.setValue(self.monthBox.value())
+        table.setCellWidget(0, 3, monthSB)
+
+        daySB = QSpinBox()
+        daySB.setRange(0, 31)
+        daySB.setValue(self.dayBox.value())
+        table.setCellWidget(0, 4, daySB)
+
+        table.setItem(0, 5, QTableWidgetItem(self.transactionDescBox.text()))
+
+        transactionTypeCB = QComboBox()
+        transactionTypeCB.insertItems(0, [self.transactionTypeBox.itemText(i) for i in range(self.transactionTypeBox.count())])
+        transactionTypeCB.setCurrentText(self.transactionTypeBox.currentText())
+        table.setCellWidget(0, 6, transactionTypeCB)
+
+        transactionSubtypeCB = QComboBox()
+        transactionSubtypeCB.insertItems(0, [self.transactionSubtypeBox.itemText(i) for i in range(self.transactionSubtypeBox.count())])
+        transactionSubtypeCB.setCurrentText(self.transactionSubtypeBox.currentText())
+        table.setCellWidget(0, 7, transactionSubtypeCB)
+
+        amountDSB = QDoubleSpinBox()
+        amountDSB.setValue(self.amountBox.value())
+        table.setCellWidget(0, 8, amountDSB)
 
 
 
@@ -136,6 +186,7 @@ class InsertionsTableGroup(QGroupBox):
 
     def __init__(self, title, parent):
         super(QGroupBox, self).__init__(title, parent)
+        self.parent = parent
         self.initLayout()
 
     def initLayout(self):
@@ -143,21 +194,26 @@ class InsertionsTableGroup(QGroupBox):
         insertionTableGridLayout.setContentsMargins(50, 20, 50, 10)
         self.setLayout(insertionTableGridLayout)
 
-        insertionsTable = QTableWidget(self)
-        insertionsTable.setColumnCount(7)
-        insertionsTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-        insertionsTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Date', 'Decription', 'Type', 'Subtype', 'Amount'])
-        insertionsTable.horizontalHeader().setStretchLastSection(True)
-        insertionTableGridLayout.addWidget(insertionsTable, 0, 0, 10, 1)
+        self.insertionsTable = QTableWidget(self)
+        self.insertionsTable.setColumnCount(9)
+        self.insertionsTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.insertionsTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Year', 'Month', 'Day', 'Decription', 'Type', 'Subtype', 'Amount'])
+        self.insertionsTable.horizontalHeader().setStretchLastSection(True)
+        insertionTableGridLayout.addWidget(self.insertionsTable, 0, 0, 10, 1)
 
         # Buttons widget
         tableButtonsWidget = QWidget(self)
         insertionTableGridLayout.addWidget(tableButtonsWidget, 10, 0, 1, 1)
-        tableButtonsHBox = QHBoxLayout()
-        tableButtonsWidget.setLayout(tableButtonsHBox)
+        tableButtonsGridLayout = QGridLayout()
+        tableButtonsWidget.setLayout(tableButtonsGridLayout)
 
         ## Buttons widget : buttons
-        clearInsertionsButton = QPushButton("Clear Insertions", self)
-        tableButtonsHBox.addWidget(clearInsertionsButton)
+        deleteRowButton = QPushButton("Delete Selected Row", self)
+        deleteRowButton.setStyleSheet("background-color: orange")
+        tableButtonsGridLayout.addWidget(deleteRowButton, 0, 0, 1, 1)
+        clearAllInsertionsButton = QPushButton("Clear All Insertions", self)
+        clearAllInsertionsButton.setStyleSheet("background-color: red")
+        tableButtonsGridLayout.addWidget(clearAllInsertionsButton, 1, 0, 1, 1)
         sendToDBButton = QPushButton("Send To Database", self)
-        tableButtonsHBox.addWidget(sendToDBButton)
+        sendToDBButton.setStyleSheet("background-color: green")
+        tableButtonsGridLayout.addWidget(sendToDBButton, 0, 1, 2, 1)
