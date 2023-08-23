@@ -16,154 +16,148 @@ class CentralWidget(QWidget):
         tabsWidget = QTabWidget(self)
         mainLayout.addWidget(tabsWidget, 0, 0, 2, 1)
 
-        insertionTabWidget = QWidget(tabsWidget)
-        tabsWidget.addTab(insertionTabWidget, 'Insertion')
-        insertionTabLayout = QVBoxLayout()
-        insertionTabWidget.setLayout(insertionTabLayout)
+        # Insertion tab
+        insertionTab = QWidget(tabsWidget)
+        tabsWidget.addTab(insertionTab, 'Insertion')
+        insertionTabGridLayout = QGridLayout()
+        insertionTab.setLayout(insertionTabGridLayout)
 
-        defaultValuesGroup = DefaultValuesGroup('Default Values', insertionTabWidget)
-        insertionTabLayout.addWidget(defaultValuesGroup)
+        ## Insertion tab : Groups
+        self.defaultValuesGroup = DefaultValuesGroup('Default Values', insertionTab)
+        insertionTabGridLayout.addWidget(self.defaultValuesGroup, 0, 0, 1, 1)
+        self.insertionsTableGroup = InsertionsTableGroup('Insertions', insertionTab)
+        insertionTabGridLayout.addWidget(self.insertionsTableGroup, 1, 0, 4, 1)
 
-        insertionValuesGroup = InsertionValuesGroup('Insertion Values', insertionTabWidget)
-        insertionTabLayout.addWidget(insertionValuesGroup)
-
-        recentInsertDisplayGroup = QGroupBox('Recent Insertions', insertionTabWidget)
-        insertionTabLayout.addWidget(recentInsertDisplayGroup)
-
-        visualizeTab = QWidget(self)
+        # Visualize tab
+        visualizeTab = QWidget(tabsWidget)
         tabsWidget.addTab(visualizeTab, 'Visualize')
-        visualizeLayout = QFormLayout()
-        visualizeTab.setLayout(visualizeLayout)
-        visualizeLayout.addRow('First Name:', QLineEdit(self))
-        visualizeLayout.addRow('Last Name:', QLineEdit(self))
+        visualizeTabLayout = QFormLayout()
+        visualizeTab.setLayout(visualizeTabLayout)
 
-        self.insertButton = QPushButton('Insert')
-        mainLayout.addWidget(self.insertButton, 2, 0, alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
-        self.insertButton = QPushButton('Clear')
-        mainLayout.addWidget(self.insertButton, 2, 0, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        ## Visualize tab : Groups
+        visualizeTabLayout.addRow('First Name:', QLineEdit(self))
+        visualizeTabLayout.addRow('Last Name:', QLineEdit(self))
+
 
 class DefaultValuesGroup(QGroupBox):
 
     def __init__(self, title, parent):
         super(QGroupBox, self).__init__(title, parent)
         self.initLayout()
+        self.initBehavior()
 
     def initLayout(self):
-        repeatValuesHBox = QHBoxLayout()
-        self.setLayout(repeatValuesHBox)
+        defaultValuesVBox = QVBoxLayout()
+        defaultValuesVBox.setContentsMargins(50, 20, 50, 20)
+        self.setLayout(defaultValuesVBox)
 
+        # Values widget
+        valuesWidget = QWidget(self)
+        defaultValuesVBox.addWidget(valuesWidget)
+        valuesHBox = QHBoxLayout()
+        valuesWidget.setLayout(valuesHBox)
+
+        ## Values widget : Values
         transactorLabel = QLabel('Transactor:')
-        repeatValuesHBox.addWidget(transactorLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        valuesHBox.addWidget(transactorLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.transactorBox = QComboBox(self)
         self.transactorBox.setEditable(True)
         self.transactorBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        repeatValuesHBox.addWidget(self.transactorBox)
+        valuesHBox.addWidget(self.transactorBox)
+
+        sharedLabel = QLabel('Shared?')
+        valuesHBox.addWidget(sharedLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        self.sharedCheckBox = QCheckBox(self)
+        valuesHBox.addWidget(self.sharedCheckBox)
 
         yearLabel = QLabel('Year:')
-        repeatValuesHBox.addWidget(yearLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        valuesHBox.addWidget(yearLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.yearBox = QSpinBox(self)
-        repeatValuesHBox.addWidget(self.yearBox)
+        valuesHBox.addWidget(self.yearBox)
 
         monthLabel = QLabel('Month:')
-        repeatValuesHBox.addWidget(monthLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        valuesHBox.addWidget(monthLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.monthBox = QComboBox(self)
-        self.monthBox.addItems(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-        repeatValuesHBox.addWidget(self.monthBox)
+        self.monthBox.addItems([None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+        valuesHBox.addWidget(self.monthBox)
 
         dayLabel = QLabel('Day:')
-        repeatValuesHBox.addWidget(dayLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        valuesHBox.addWidget(dayLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.dayBox = QComboBox(self)
         self.dayBox.addItems([str(x) for x in range(1, 32)])
-        repeatValuesHBox.addWidget(self.dayBox)
+        valuesHBox.addWidget(self.dayBox)
 
         transactionDescLabel = QLabel('Description:')
-        repeatValuesHBox.addWidget(transactionDescLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        valuesHBox.addWidget(transactionDescLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.transactionDescBox = QLineEdit(self)
-        repeatValuesHBox.addWidget(self.transactionDescBox)
+        valuesHBox.addWidget(self.transactionDescBox)
 
-        transactionTypeLabel = QLabel('Transaction Type:')
-        repeatValuesHBox.addWidget(transactionTypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        transactionTypeLabel = QLabel('Trans. Type:')
+        valuesHBox.addWidget(transactionTypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.transactionTypeBox = QComboBox(self)
         self.transactionTypeBox.setEditable(True)
         self.transactionTypeBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        repeatValuesHBox.addWidget(self.transactionTypeBox)
+        valuesHBox.addWidget(self.transactionTypeBox)
 
-        transactionSubtypeLabel = QLabel('Transaction Subtype:')
-        repeatValuesHBox.addWidget(transactionSubtypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        transactionSubtypeLabel = QLabel('Trans. Subtype:')
+        valuesHBox.addWidget(transactionSubtypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.transactionSubtypeBox = QComboBox(self)
         self.transactionSubtypeBox.setEditable(True)
         self.transactionSubtypeBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        repeatValuesHBox.addWidget(self.transactionSubtypeBox)
+        valuesHBox.addWidget(self.transactionSubtypeBox)
 
         amountLabel = QLabel('Amount:')
-        repeatValuesHBox.addWidget(amountLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        valuesHBox.addWidget(amountLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.amountBox = QDoubleSpinBox(self)
-        repeatValuesHBox.addWidget(self.amountBox)
+        valuesHBox.addWidget(self.amountBox)
 
-        sharedLabel = QLabel('Shared?')
-        repeatValuesHBox.addWidget(sharedLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.sharedCheckBox = QCheckBox(self)
-        repeatValuesHBox.addWidget(self.sharedCheckBox)
+        # Buttons widget
+        valuesButtonsWidget = QWidget(self)
+        defaultValuesVBox.addWidget(valuesButtonsWidget)
+        valuesButtonsHBox = QHBoxLayout()
+        valuesButtonsWidget.setLayout(valuesButtonsHBox)
 
-class InsertionValuesGroup(QGroupBox):
+        ## Buttons widget : buttons
+        self.clearValuesButton = QPushButton("Clear Values", self)
+        valuesButtonsHBox.addWidget(self.clearValuesButton)
+        self.insertRowButton = QPushButton("Insert Row", self)
+        valuesButtonsHBox.addWidget(self.insertRowButton)
+
+    def initBehavior(self):
+        self.insertRowButton.clicked.connect(self.insertRow)
+
+    def insertRow(self):
+        return
+        # parent.insertionsTableGroup.
+
+
+
+class InsertionsTableGroup(QGroupBox):
 
     def __init__(self, title, parent):
         super(QGroupBox, self).__init__(title, parent)
         self.initLayout()
 
     def initLayout(self):
-        repeatValuesHBox = QHBoxLayout()
-        self.setLayout(repeatValuesHBox)
+        insertionTableGridLayout = QGridLayout()
+        insertionTableGridLayout.setContentsMargins(50, 20, 50, 10)
+        self.setLayout(insertionTableGridLayout)
 
-        transactorLabel = QLabel('Transactor:')
-        repeatValuesHBox.addWidget(transactorLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactorBox = QComboBox(self)
-        self.transactorBox.setEditable(True)
-        self.transactorBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        repeatValuesHBox.addWidget(self.transactorBox)
+        insertionsTable = QTableWidget(self)
+        insertionsTable.setColumnCount(7)
+        insertionsTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        insertionsTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Date', 'Decription', 'Type', 'Subtype', 'Amount'])
+        insertionsTable.horizontalHeader().setStretchLastSection(True)
+        insertionTableGridLayout.addWidget(insertionsTable, 0, 0, 10, 1)
 
-        yearLabel = QLabel('Year:')
-        repeatValuesHBox.addWidget(yearLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.yearBox = QSpinBox(self)
-        repeatValuesHBox.addWidget(self.yearBox)
+        # Buttons widget
+        tableButtonsWidget = QWidget(self)
+        insertionTableGridLayout.addWidget(tableButtonsWidget, 10, 0, 1, 1)
+        tableButtonsHBox = QHBoxLayout()
+        tableButtonsWidget.setLayout(tableButtonsHBox)
 
-        monthLabel = QLabel('Month:')
-        repeatValuesHBox.addWidget(monthLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.monthBox = QComboBox(self)
-        self.monthBox.addItems(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-        repeatValuesHBox.addWidget(self.monthBox)
-
-        dayLabel = QLabel('Day:')
-        repeatValuesHBox.addWidget(dayLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.dayBox = QComboBox(self)
-        self.dayBox.addItems([str(x) for x in range(1, 32)])
-        repeatValuesHBox.addWidget(self.dayBox)
-
-        transactionDescLabel = QLabel('Description:')
-        repeatValuesHBox.addWidget(transactionDescLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactionDescBox = QLineEdit(self)
-        repeatValuesHBox.addWidget(self.transactionDescBox)
-
-        transactionTypeLabel = QLabel('Transaction Type:')
-        repeatValuesHBox.addWidget(transactionTypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactionTypeBox = QComboBox(self)
-        self.transactionTypeBox.setEditable(True)
-        self.transactionTypeBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        repeatValuesHBox.addWidget(self.transactionTypeBox)
-
-        transactionSubtypeLabel = QLabel('Transaction Subtype:')
-        repeatValuesHBox.addWidget(transactionSubtypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactionSubtypeBox = QComboBox(self)
-        self.transactionSubtypeBox.setEditable(True)
-        self.transactionSubtypeBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        repeatValuesHBox.addWidget(self.transactionSubtypeBox)
-
-        amountLabel = QLabel('Amount:')
-        repeatValuesHBox.addWidget(amountLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.amountBox = QDoubleSpinBox(self)
-        repeatValuesHBox.addWidget(self.amountBox)
-
-        sharedLabel = QLabel('Shared?')
-        repeatValuesHBox.addWidget(sharedLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.sharedCheckBox = QCheckBox(self)
-        repeatValuesHBox.addWidget(self.sharedCheckBox)
+        ## Buttons widget : buttons
+        clearInsertionsButton = QPushButton("Clear Insertions", self)
+        tableButtonsHBox.addWidget(clearInsertionsButton)
+        sendToDBButton = QPushButton("Send To Database", self)
+        tableButtonsHBox.addWidget(sendToDBButton)
