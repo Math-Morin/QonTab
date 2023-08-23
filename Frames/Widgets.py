@@ -128,8 +128,10 @@ class DefaultValuesGroup(QGroupBox):
 
         ## Buttons widget : buttons
         self.clearValuesButton = QPushButton("Clear Values", self)
+        self.clearValuesButton.setStyleSheet("background-color: orange")
         valuesButtonsHBox.addWidget(self.clearValuesButton)
         self.insertRowButton = QPushButton("Insert Row", self)
+        self.insertRowButton.setStyleSheet("background-color: green")
         valuesButtonsHBox.addWidget(self.insertRowButton)
 
     def initBehavior(self):
@@ -208,12 +210,13 @@ class InsertionsTableGroup(QGroupBox):
         tableButtonsWidget.setLayout(tableButtonsGridLayout)
 
         ## Buttons widget : buttons
-        deleteRowButton = QPushButton("Delete Selected Row", self)
-        deleteRowButton.setStyleSheet("background-color: orange")
-        tableButtonsGridLayout.addWidget(deleteRowButton, 0, 0, 1, 1)
-        clearAllInsertionsButton = QPushButton("Clear All Insertions", self)
-        clearAllInsertionsButton.setStyleSheet("background-color: red")
-        tableButtonsGridLayout.addWidget(clearAllInsertionsButton, 1, 0, 1, 1)
-        sendToDBButton = QPushButton("Send To Database", self)
-        sendToDBButton.setStyleSheet("background-color: green")
-        tableButtonsGridLayout.addWidget(sendToDBButton, 0, 1, 2, 1)
+        self.deleteRowButton = QPushButton("Delete Selected Row", self)
+        self.deleteRowButton.setStyleSheet("background-color: orange")
+        tableButtonsGridLayout.addWidget(self.deleteRowButton, 0, 0, 1, 1)
+        self.clearAllInsertionsButton = QPushButton("Clear All Insertions", self)
+        self.clearAllInsertionsButton.setStyleSheet("background-color: red")
+        tableButtonsGridLayout.addWidget(self.clearAllInsertionsButton, 1, 0, 1, 1)
+        self.sendToDBButton = QPushButton("Send To Database", self)
+        self.sendToDBButton.setStyleSheet("background-color: green")
+        self.sendToDBButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        tableButtonsGridLayout.addWidget(self.sendToDBButton, 0, 1, 2, 1)
