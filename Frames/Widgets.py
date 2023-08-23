@@ -49,80 +49,68 @@ class DefaultValuesGroup(QGroupBox):
         self.initBehavior()
 
     def initLayout(self):
-        defaultValuesVBox = QVBoxLayout()
-        defaultValuesVBox.setContentsMargins(50, 20, 50, 20)
-        self.setLayout(defaultValuesVBox)
+        defaultValuesGroupVBox = QVBoxLayout()
+        defaultValuesGroupVBox.setContentsMargins(50, 20, 50, 20)
+        self.setLayout(defaultValuesGroupVBox)
 
-        # Values widget
-        valuesWidget = QWidget(self)
-        defaultValuesVBox.addWidget(valuesWidget)
-        valuesHBox = QHBoxLayout()
-        valuesWidget.setLayout(valuesHBox)
+        # Values table
+        self.defaultValuesTable = QTableWidget(self)
+        defaultValuesGroupVBox.addWidget(self.defaultValuesTable)
+        self.defaultValuesTable.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.defaultValuesTable.verticalHeader().hide()
+        self.defaultValuesTable.setColumnCount(9)
+        self.defaultValuesTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Year', 'Month', 'Day', 'Decription', 'Type', 'Subtype', 'Amount'])
+        self.defaultValuesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.defaultValuesTable.horizontalHeader().setStretchLastSection(True)
+        self.defaultValuesTable.setRowCount(1)
 
         ## Values widget : Values
-        transactorLabel = QLabel('Transactor:')
-        valuesHBox.addWidget(transactorLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactorBox = QComboBox(self)
-        self.transactorBox.setEditable(True)
-        self.transactorBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        valuesHBox.addWidget(self.transactorBox)
+        self.transactorDefaultCB = QComboBox(self)
+        self.transactorDefaultCB.setEditable(True)
+        self.transactorDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
+        self.defaultValuesTable.setCellWidget(0, 0, self.transactorDefaultCB)
 
-        sharedLabel = QLabel('Shared?')
-        valuesHBox.addWidget(sharedLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.sharedCheckBox = QCheckBox(self)
-        valuesHBox.addWidget(self.sharedCheckBox)
+        self.sharedDefaultCB = QComboBox(self)
+        self.sharedDefaultCB.insertItems(0, ['no', 'yes'])
+        self.defaultValuesTable.setCellWidget(0, 1, self.sharedDefaultCB)
 
         currentDate = QtCore.QDate.currentDate()
 
-        yearLabel = QLabel('Year:')
-        valuesHBox.addWidget(yearLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.yearBox = QSpinBox(self)
-        self.yearBox.setRange(2000,2100)
-        self.yearBox.setValue(currentDate.year())
-        valuesHBox.addWidget(self.yearBox)
+        self.yearDefaultSB = QSpinBox(self)
+        self.yearDefaultSB.setRange(2000,2100)
+        self.yearDefaultSB.setValue(currentDate.year())
+        self.defaultValuesTable.setCellWidget(0, 2, self.yearDefaultSB)
 
-        monthLabel = QLabel('Month:')
-        valuesHBox.addWidget(monthLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.monthBox = QSpinBox(self)
-        self.monthBox.setRange(0, 12)
-        self.monthBox.setSpecialValueText('-')
-        self.monthBox.setValue(currentDate.month())
-        valuesHBox.addWidget(self.monthBox)
+        self.monthDefaultSB = QSpinBox(self)
+        self.monthDefaultSB.setRange(0, 12)
+        self.monthDefaultSB.setSpecialValueText('-')
+        self.monthDefaultSB.setValue(currentDate.month())
+        self.defaultValuesTable.setCellWidget(0, 3, self.monthDefaultSB)
 
-        dayLabel = QLabel('Day:')
-        valuesHBox.addWidget(dayLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.dayBox = QSpinBox(self)
-        self.dayBox.setRange(0, 31)
-        self.dayBox.setSpecialValueText('-')
-        valuesHBox.addWidget(self.dayBox)
+        self.dayDefaultSB = QSpinBox(self)
+        self.dayDefaultSB.setRange(0, 31)
+        self.dayDefaultSB.setSpecialValueText('-')
+        self.defaultValuesTable.setCellWidget(0, 4, self.dayDefaultSB)
 
-        transactionDescLabel = QLabel('Description:')
-        valuesHBox.addWidget(transactionDescLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactionDescBox = QLineEdit(self)
-        valuesHBox.addWidget(self.transactionDescBox)
+        self.defaultTransactionDesc = QLineEdit(self)
+        self.defaultValuesTable.setCellWidget(0, 5, self.defaultTransactionDesc)
 
-        transactionTypeLabel = QLabel('Trans. Type:')
-        valuesHBox.addWidget(transactionTypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactionTypeBox = QComboBox(self)
-        self.transactionTypeBox.setEditable(True)
-        self.transactionTypeBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        valuesHBox.addWidget(self.transactionTypeBox)
+        self.transTypeDefaultCB = QComboBox(self)
+        self.transTypeDefaultCB.setEditable(True)
+        self.transTypeDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
+        self.defaultValuesTable.setCellWidget(0, 6, self.transTypeDefaultCB)
 
-        transactionSubtypeLabel = QLabel('Trans. Subtype:')
-        valuesHBox.addWidget(transactionSubtypeLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.transactionSubtypeBox = QComboBox(self)
-        self.transactionSubtypeBox.setEditable(True)
-        self.transactionSubtypeBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        valuesHBox.addWidget(self.transactionSubtypeBox)
+        self.transSubtypeDefaultCB = QComboBox(self)
+        self.transSubtypeDefaultCB.setEditable(True)
+        self.transSubtypeDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
+        self.defaultValuesTable.setCellWidget(0, 7, self.transSubtypeDefaultCB)
 
-        amountLabel = QLabel('Amount:')
-        valuesHBox.addWidget(amountLabel, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
-        self.amountBox = QDoubleSpinBox(self)
-        valuesHBox.addWidget(self.amountBox)
+        self.amountDefaultDSB = QDoubleSpinBox(self)
+        self.defaultValuesTable.setCellWidget(0, 8, self.amountDefaultDSB)
 
         # Buttons widget
         valuesButtonsWidget = QWidget(self)
-        defaultValuesVBox.addWidget(valuesButtonsWidget)
+        defaultValuesGroupVBox.addWidget(valuesButtonsWidget)
         valuesButtonsHBox = QHBoxLayout()
         valuesButtonsWidget.setLayout(valuesButtonsHBox)
 
@@ -135,53 +123,52 @@ class DefaultValuesGroup(QGroupBox):
         valuesButtonsHBox.addWidget(self.insertRowButton)
 
     def initBehavior(self):
-        self.insertRowButton.clicked.connect(self.insertRow)
+        self.insertRowButton.clicked.connect(self.addRow)
 
-    def insertRow(self):
+    def addRow(self):
         table = self.parent.insertionsTableGroup.insertionsTable
         table.insertRow(0)
 
         transactorCB = QComboBox()
-        transactorCB.insertItems(0, [self.transactorBox.itemText(i) for i in range(self.transactorBox.count())])
-        transactorCB.setCurrentText(self.transactorBox.currentText())
+        transactorCB.insertItems(0, [self.transactorDefaultCB.itemText(i) for i in range(self.transactorDefaultCB.count())])
+        transactorCB.setCurrentText(self.transactorDefaultCB.currentText())
         table.setCellWidget(0, 0, transactorCB)
 
         sharedCB = QComboBox()
         sharedCB.insertItems(0, ['no', 'yes'])
-        sharedCB.setCurrentIndex(self.sharedCheckBox.checkState() == QtCore.Qt.Checked)
+        sharedCB.setCurrentIndex(self.sharedDefaultCB.currentIndex())
         table.setCellWidget(0, 1, sharedCB)
 
         yearSB = QSpinBox()
         yearSB.setRange(2000, 2100)
-        yearSB.setValue(self.yearBox.value())
+        yearSB.setValue(self.yearDefaultSB.value())
         table.setCellWidget(0, 2, yearSB)
 
         monthSB = QSpinBox()
         monthSB.setRange(0, 12)
-        monthSB.setValue(self.monthBox.value())
+        monthSB.setValue(self.monthDefaultSB.value())
         table.setCellWidget(0, 3, monthSB)
 
         daySB = QSpinBox()
         daySB.setRange(0, 31)
-        daySB.setValue(self.dayBox.value())
+        daySB.setValue(self.dayDefaultSB.value())
         table.setCellWidget(0, 4, daySB)
 
-        table.setItem(0, 5, QTableWidgetItem(self.transactionDescBox.text()))
+        table.setItem(0, 5, QTableWidgetItem(self.defaultTransactionDesc.text()))
 
-        transactionTypeCB = QComboBox()
-        transactionTypeCB.insertItems(0, [self.transactionTypeBox.itemText(i) for i in range(self.transactionTypeBox.count())])
-        transactionTypeCB.setCurrentText(self.transactionTypeBox.currentText())
-        table.setCellWidget(0, 6, transactionTypeCB)
+        transTypeCB = QComboBox()
+        transTypeCB.insertItems(0, [self.transTypeDefaultCB.itemText(i) for i in range(self.transTypeDefaultCB.count())])
+        transTypeCB.setCurrentText(self.transTypeDefaultCB.currentText())
+        table.setCellWidget(0, 6, transTypeCB)
 
-        transactionSubtypeCB = QComboBox()
-        transactionSubtypeCB.insertItems(0, [self.transactionSubtypeBox.itemText(i) for i in range(self.transactionSubtypeBox.count())])
-        transactionSubtypeCB.setCurrentText(self.transactionSubtypeBox.currentText())
-        table.setCellWidget(0, 7, transactionSubtypeCB)
+        transSubtypeCB = QComboBox()
+        transSubtypeCB.insertItems(0, [self.transSubtypeDefaultCB.itemText(i) for i in range(self.transSubtypeDefaultCB.count())])
+        transSubtypeCB.setCurrentText(self.transSubtypeDefaultCB.currentText())
+        table.setCellWidget(0, 7, transSubtypeCB)
 
         amountDSB = QDoubleSpinBox()
-        amountDSB.setValue(self.amountBox.value())
+        amountDSB.setValue(self.amountDefaultDSB.value())
         table.setCellWidget(0, 8, amountDSB)
-
 
 
 class InsertionsTableGroup(QGroupBox):
@@ -198,7 +185,7 @@ class InsertionsTableGroup(QGroupBox):
 
         self.insertionsTable = QTableWidget(self)
         self.insertionsTable.setColumnCount(9)
-        self.insertionsTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.insertionsTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.insertionsTable.setHorizontalHeaderLabels(['Transactor', 'Shared?', 'Year', 'Month', 'Day', 'Decription', 'Type', 'Subtype', 'Amount'])
         self.insertionsTable.horizontalHeader().setStretchLastSection(True)
         insertionTableGridLayout.addWidget(self.insertionsTable, 0, 0, 10, 1)
