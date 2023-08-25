@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
+import Database as DB
 
 class CentralWidget(QWidget):
 
@@ -68,6 +71,9 @@ class DefaultValuesGroup(QGroupBox):
         self.transactorDefaultCB = QComboBox(self)
         self.transactorDefaultCB.setEditable(True)
         self.transactorDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
+        with Session(DB.engine) as session:
+            for row in session.execute(select(DB.Transactors.name)):
+                self.transactorDefaultCB.addItem(row[0])
         self.defaultValuesTable.setCellWidget(0, 0, self.transactorDefaultCB)
 
         self.sharedDefaultCB = QComboBox(self)
@@ -95,11 +101,17 @@ class DefaultValuesGroup(QGroupBox):
         self.transTypeDefaultCB = QComboBox(self)
         self.transTypeDefaultCB.setEditable(True)
         self.transTypeDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
+        with Session(DB.engine) as session:
+            for row in session.execute(select(DB.TransactionType.maintype)):
+                self.transTypeDefaultCB.addItem(row[0])
         self.defaultValuesTable.setCellWidget(0, 5, self.transTypeDefaultCB)
 
         self.transSubtypeDefaultCB = QComboBox(self)
         self.transSubtypeDefaultCB.setEditable(True)
         self.transSubtypeDefaultCB.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
+        with Session(DB.engine) as session:
+            for row in session.execute(select(DB.TransactionSubtype.subtype)):
+                self.transSubtypeDefaultCB.addItem(row[0])
         self.defaultValuesTable.setCellWidget(0, 6, self.transSubtypeDefaultCB)
 
         self.amountDefaultDSB = QDoubleSpinBox(self)
