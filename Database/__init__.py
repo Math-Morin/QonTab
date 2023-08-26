@@ -9,7 +9,7 @@ from pathlib import Path
 Base = declarative_base()
 
 path = Path(__file__).parent / "transactions.db"
-engine = create_engine(f"sqlite:////{path}")
+engine = create_engine(f"sqlite:////{path}", echo=True)
 if not database_exists(engine.url):
     create_database(engine.url)
 

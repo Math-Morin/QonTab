@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from sqlalchemy.orm import Session
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
@@ -218,4 +218,41 @@ class InsertionsTableGroup(QGroupBox):
         self.sendToDBButton = QPushButton("Send To Database", self)
         self.sendToDBButton.setStyleSheet("background-color: green")
         self.sendToDBButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.sendToDBButton.clicked.connect(self.sendToDB)
         tableButtonsGridLayout.addWidget(self.sendToDBButton, 0, 1, 2, 1)
+
+    def sendToDB(self):
+        if not self.dataIsValid():
+            print('data not okay')
+            return
+
+        for row in range(self.insertionsTable.rowCount()):
+            transactor = self.insertionsTable.cellWidget(row, 0).currentText()
+            shared = self.insertionsTable.cellWidget(row, 1).currentText()
+            year = self.insertionsTable.cellWidget(row, 2).value()
+            month = self.insertionsTable.cellWidget(row, 3).value()
+            day = self.insertionsTable.cellWidget(row, 4).value()
+            transaction_type = self.insertionsTable.cellWidget(row, 5).currentText()
+            transaction_subtype = self.insertionsTable.cellWidget(row, 6).currentText()
+            amount = self.insertionsTable.cellWidget(row, 7).value()
+            description = self.insertionsTable.item(row, 8).text()
+            with Session(DB.engine) as session:
+                if not session.execute(select(DB.Transactors.name).where(DB.Transactors.name == transactor)).first():
+                    session.add(DB.Transactors(name=transactor))
+                if not session.execute(select(DB.TransactionType.maintype).where(DB.TransactionType.maintype == transaction_type)).first():
+                    session.add(DB.TransactionType(maintype=transaction_type))
+                if not session.execute(select(DB.TransactionSubtype.subtype).where(DB.TransactionSubtype.subtype == transaction_subtype)).first():
+                    session.add(DB.TransactionSubtype(subtype=transaction_subtype))
+                session.add(DB.Transactions(transactor=transactor,
+                                            shared = 1 if shared == "yes" else 0,
+                                            date = f'{year}-{month}-{day}',
+                                            transaction_type=transaction_type,
+                                            transaction_subtype=transaction_subtype,
+                                            amount=amount,
+                                            description=description))
+                session.commit()
+
+
+    def dataIsValid(self):
+        print("Data okay")
+        return True
