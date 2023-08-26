@@ -136,6 +136,7 @@ class DefaultValuesGroup(QGroupBox):
 
     def initBehavior(self):
         self.insertRowButton.clicked.connect(self.addRow)
+        self.clearValuesButton.clicked.connect(self.clearValues)
 
     def addRow(self):
         table = self.parent.insertionsTableGroup.insertionsTable
@@ -143,7 +144,9 @@ class DefaultValuesGroup(QGroupBox):
 
         transactorCB = QComboBox()
         transactorCB.insertItems(0, [self.transactorDefaultCB.itemText(i) for i in range(self.transactorDefaultCB.count())])
-        transactorCB.setCurrentText(self.transactorDefaultCB.currentText())
+        item = self.transactorDefaultCB.currentText().strip().title()
+        transactorCB.addItem(item)
+        transactorCB.setCurrentText(item)
         table.setCellWidget(0, 0, transactorCB)
 
         sharedCB = QComboBox()
@@ -168,19 +171,31 @@ class DefaultValuesGroup(QGroupBox):
 
         transTypeCB = QComboBox()
         transTypeCB.insertItems(0, [self.transTypeDefaultCB.itemText(i) for i in range(self.transTypeDefaultCB.count())])
-        transTypeCB.setCurrentText(self.transTypeDefaultCB.currentText())
+        item = self.transTypeDefaultCB.currentText().strip().title()
+        transTypeCB.addItem(item)
+        transTypeCB.setCurrentText(item)
         table.setCellWidget(0, 5, transTypeCB)
 
         transSubtypeCB = QComboBox()
         transSubtypeCB.insertItems(0, [self.transSubtypeDefaultCB.itemText(i) for i in range(self.transSubtypeDefaultCB.count())])
-        transSubtypeCB.setCurrentText(self.transSubtypeDefaultCB.currentText())
+        item = self.transSubtypeDefaultCB.currentText().strip().title()
+        transSubtypeCB.addItem(item)
+        transSubtypeCB.setCurrentText(item)
         table.setCellWidget(0, 6, transSubtypeCB)
 
         amountDSB = QDoubleSpinBox()
         amountDSB.setValue(self.amountDefaultDSB.value())
         table.setCellWidget(0, 7, amountDSB)
 
-        table.setItem(0, 8, QTableWidgetItem(self.defaultTransactionDesc.text()))
+        table.setItem(0, 8, QTableWidgetItem(self.defaultTransactionDesc.text().strip()))
+
+    def clearValues(self):
+        self.defaultValuesTable.cellWidget(0, 0).clearEditText()
+        self.defaultValuesTable.cellWidget(0, 4).setValue(0)
+        self.defaultValuesTable.cellWidget(0, 5).clearEditText()
+        self.defaultValuesTable.cellWidget(0, 6).clearEditText()
+        self.defaultValuesTable.cellWidget(0, 7).setValue(0.0)
+        self.defaultValuesTable.item(0, 8).clear()
 
 
 class InsertionsTableGroup(QGroupBox):
@@ -211,10 +226,12 @@ class InsertionsTableGroup(QGroupBox):
         ## Buttons widget : buttons
         self.deleteRowButton = QPushButton("Delete Selected Row", self)
         self.deleteRowButton.setStyleSheet("background-color: orange")
+        self.deleteRowButton.clicked.connect(self.deleteRow)
         tableButtonsGridLayout.addWidget(self.deleteRowButton, 0, 0, 1, 1)
-        self.clearAllInsertionsButton = QPushButton("Clear All Insertions", self)
-        self.clearAllInsertionsButton.setStyleSheet("background-color: red")
-        tableButtonsGridLayout.addWidget(self.clearAllInsertionsButton, 1, 0, 1, 1)
+        self.deleteAllInsertionsButton = QPushButton("Clear All Insertions", self)
+        self.deleteAllInsertionsButton.setStyleSheet("background-color: red")
+        self.deleteAllInsertionsButton.clicked.connect(self.deleteAllRows)
+        tableButtonsGridLayout.addWidget(self.deleteAllInsertionsButton, 1, 0, 1, 1)
         self.sendToDBButton = QPushButton("Send To Database", self)
         self.sendToDBButton.setStyleSheet("background-color: green")
         self.sendToDBButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -222,20 +239,20 @@ class InsertionsTableGroup(QGroupBox):
         tableButtonsGridLayout.addWidget(self.sendToDBButton, 0, 1, 2, 1)
 
     def sendToDB(self):
-        if not self.dataIsValid():
-            print('data not okay')
-            return
-
-        for row in range(self.insertionsTable.rowCount()):
-            transactor = self.insertionsTable.cellWidget(row, 0).currentText()
-            shared = self.insertionsTable.cellWidget(row, 1).currentText()
+        for row in range(self.insertionsTable.rowCount()-1, -1, -1):
+            transactor = self.insertionsTable.cellWidget(row, 0).currentText().strip().title()
+            shared = self.insertionsTable.cellWidget(row, 1).currentText().strip().title()
             year = self.insertionsTable.cellWidget(row, 2).value()
             month = self.insertionsTable.cellWidget(row, 3).value()
+            month = month if len(month) == 2 else "0"+month
             day = self.insertionsTable.cellWidget(row, 4).value()
-            transaction_type = self.insertionsTable.cellWidget(row, 5).currentText()
-            transaction_subtype = self.insertionsTable.cellWidget(row, 6).currentText()
+            transaction_type = self.insertionsTable.cellWidget(row, 5).currentText().strip().title()
+            transaction_subtype = self.insertionsTable.cellWidget(row, 6).currentText().strip().title()
             amount = self.insertionsTable.cellWidget(row, 7).value()
-            description = self.insertionsTable.item(row, 8).text()
+            description = self.insertionsTable.item(row, 8).text().strip()
+
+            if transactor == '' or transaction_type == '' or description == '':
+                continue
             with Session(DB.engine) as session:
                 if not session.execute(select(DB.Transactors.name).where(DB.Transactors.name == transactor)).first():
                     session.add(DB.Transactors(name=transactor))
@@ -251,8 +268,13 @@ class InsertionsTableGroup(QGroupBox):
                                             amount=amount,
                                             description=description))
                 session.commit()
+                self.insertionsTable.removeRow(row)
 
+    def deleteRow(self):
+        indexes = self.insertionsTable.selectionModel().selectedRows()
+        for index in sorted(indexes, reverse=True):
+            self.insertionsTable.removeRow(index.row())
 
-    def dataIsValid(self):
-        print("Data okay")
-        return True
+    def deleteAllRows(self):
+        #TODO add confirm window
+        self.insertionsTable.setRowCount(0)
