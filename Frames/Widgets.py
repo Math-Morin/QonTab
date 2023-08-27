@@ -115,6 +115,7 @@ class DefaultValuesGroup(QGroupBox):
         self.defaultValuesTable.setCellWidget(0, 6, self.transSubtypeDefaultCB)
 
         self.amountDefaultDSB = QDoubleSpinBox(self)
+        self.amountDefaultDSB.setRange(0, 99999)
         self.defaultValuesTable.setCellWidget(0, 7, self.amountDefaultDSB)
 
         self.defaultTransactionDesc = QLineEdit(self)
@@ -144,6 +145,7 @@ class DefaultValuesGroup(QGroupBox):
 
         transactorCB = QComboBox()
         transactorCB.insertItems(0, [self.transactorDefaultCB.itemText(i) for i in range(self.transactorDefaultCB.count())])
+        transactorCB.setEditable(True)
         item = self.transactorDefaultCB.currentText().strip().title()
         transactorCB.addItem(item)
         transactorCB.setCurrentText(item)
@@ -171,6 +173,7 @@ class DefaultValuesGroup(QGroupBox):
 
         transTypeCB = QComboBox()
         transTypeCB.insertItems(0, [self.transTypeDefaultCB.itemText(i) for i in range(self.transTypeDefaultCB.count())])
+        transTypeCB.setEditable(True)
         item = self.transTypeDefaultCB.currentText().strip().title()
         transTypeCB.addItem(item)
         transTypeCB.setCurrentText(item)
@@ -178,6 +181,7 @@ class DefaultValuesGroup(QGroupBox):
 
         transSubtypeCB = QComboBox()
         transSubtypeCB.insertItems(0, [self.transSubtypeDefaultCB.itemText(i) for i in range(self.transSubtypeDefaultCB.count())])
+        transSubtypeCB.setEditable(True)
         item = self.transSubtypeDefaultCB.currentText().strip().title()
         transSubtypeCB.addItem(item)
         transSubtypeCB.setCurrentText(item)
@@ -185,6 +189,7 @@ class DefaultValuesGroup(QGroupBox):
 
         amountDSB = QDoubleSpinBox()
         amountDSB.setValue(self.amountDefaultDSB.value())
+        amountDSB.setRange(0, 99999)
         table.setCellWidget(0, 7, amountDSB)
 
         table.setItem(0, 8, QTableWidgetItem(self.defaultTransactionDesc.text().strip()))
@@ -244,15 +249,16 @@ class InsertionsTableGroup(QGroupBox):
             shared = self.insertionsTable.cellWidget(row, 1).currentText().strip().title()
             year = self.insertionsTable.cellWidget(row, 2).value()
             month = self.insertionsTable.cellWidget(row, 3).value()
-            month = month if len(month) == 2 else "0"+month
+            month = month if len(str(month)) == 2 else "0"+str(month)
             day = self.insertionsTable.cellWidget(row, 4).value()
             transaction_type = self.insertionsTable.cellWidget(row, 5).currentText().strip().title()
             transaction_subtype = self.insertionsTable.cellWidget(row, 6).currentText().strip().title()
             amount = self.insertionsTable.cellWidget(row, 7).value()
             description = self.insertionsTable.item(row, 8).text().strip()
 
-            if transactor == '' or transaction_type == '' or description == '':
+            if transactor == '' or transaction_type == '' or description == '' or day == 0:
                 continue
+
             with Session(DB.engine) as session:
                 if not session.execute(select(DB.Transactors.name).where(DB.Transactors.name == transactor)).first():
                     session.add(DB.Transactors(name=transactor))
