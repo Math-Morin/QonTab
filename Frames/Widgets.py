@@ -251,7 +251,7 @@ class InsertionsTableGroup(QGroupBox):
         self.deleteRowButton.setStyleSheet("background-color: orange")
         self.deleteRowButton.clicked.connect(self.deleteRow)
         tableButtonsGridLayout.addWidget(self.deleteRowButton, 0, 0, 1, 1)
-        self.deleteAllInsertionsButton = QPushButton("Clear All Insertions", self)
+        self.deleteAllInsertionsButton = QPushButton("Delete All Insertions", self)
         self.deleteAllInsertionsButton.setStyleSheet("background-color: red")
         self.deleteAllInsertionsButton.clicked.connect(self.deleteAllRows)
         tableButtonsGridLayout.addWidget(self.deleteAllInsertionsButton, 1, 0, 1, 1)
@@ -295,9 +295,9 @@ class InsertionsTableGroup(QGroupBox):
                 self.insertionsTable.removeRow(row)
 
     def deleteRow(self):
-        indexes = self.insertionsTable.selectionModel().selectedRows()
+        indexes = [i.row() for i in self.insertionsTable.selectionModel().selectedRows()]
         for index in sorted(indexes, reverse=True):
-            self.insertionsTable.removeRow(index.row())
+            self.insertionsTable.removeRow(index)
 
     def deleteAllRows(self):
         #TODO add confirm window
