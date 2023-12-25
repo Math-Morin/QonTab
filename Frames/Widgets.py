@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import Database as DB
+from pathlib import Path
 
 class CentralWidget(QWidget):
 
@@ -128,6 +129,9 @@ class DefaultValuesGroup(QGroupBox):
         valuesButtonsWidget.setLayout(valuesButtonsHBox)
 
         ## Buttons widget : buttons
+        self.importButton = QPushButton("Import from file...", self)
+        self.importButton.setStyleSheet("background-color: blue")
+        valuesButtonsHBox.addWidget(self.importButton)
         self.clearValuesButton = QPushButton("Clear Values", self)
         self.clearValuesButton.setStyleSheet("background-color: orange")
         valuesButtonsHBox.addWidget(self.clearValuesButton)
@@ -136,8 +140,14 @@ class DefaultValuesGroup(QGroupBox):
         valuesButtonsHBox.addWidget(self.insertRowButton)
 
     def initBehavior(self):
+        self.importButton.clicked.connect(self.importFromFile)
         self.insertRowButton.clicked.connect(self.addRow)
         self.clearValuesButton.clicked.connect(self.clearValues)
+
+    def importFromFile(self):
+        fileName = QFileDialog.getOpenFileName(self, "Open file", str(Path(__file__).parent), "Transactions Files (*.csv)")
+        print(fileName)
+
 
     def addRow(self):
         table = self.parent.insertionsTableGroup.insertionsTable
