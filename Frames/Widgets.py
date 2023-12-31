@@ -6,6 +6,8 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import Database as DB
 from pathlib import Path
+import csv
+
 
 class CentralWidget(QWidget):
 
@@ -47,7 +49,7 @@ class CentralWidget(QWidget):
 class DefaultValuesGroup(QGroupBox):
 
     def __init__(self, title, parent):
-        super(QGroupBox, self).__init__(title, parent)
+        super(DefaultValuesGroup, self).__init__(title, parent)
         self.parent = parent
         self.initLayout()
         self.initBehavior()
@@ -148,7 +150,11 @@ class DefaultValuesGroup(QGroupBox):
     def importFromFile(self):
         fileName = QFileDialog.getOpenFileName(self, "Open file", str(Path(__file__).parent),
                                                "Transactions Files (*.csv)")
-        print(fileName)
+        self.importTransactionsFromCSV(fileName)
+
+    def importTransactionsFromCSV(fileName):
+        with open(fileName) as file:
+            reader = csv.reader(file, delimiter=',')
 
 
     def addRow(self):
@@ -223,7 +229,7 @@ class DefaultValuesGroup(QGroupBox):
 class InsertionsTableGroup(QGroupBox):
 
     def __init__(self, title, parent):
-        super(QGroupBox, self).__init__(title, parent)
+        super(InsertionsTableGroup, self).__init__(title, parent)
         self.parent = parent
         self.initLayout()
 
@@ -300,5 +306,27 @@ class InsertionsTableGroup(QGroupBox):
             self.insertionsTable.removeRow(index)
 
     def deleteAllRows(self):
-        #TODO add confirm window
-        self.insertionsTable.setRowCount(0)
+        centralWidget = self.parent
+        mainWindow = CentralWidget.parent
+
+        confirmDialog = ConfirmDeleteAllDialog(centralWidget)
+        confirmDialog.setWindowTitle("Confirm delete all insertions")
+        if confirmDialog.exec():
+            self.insertionsTable.setRowCount(0)
+
+
+class ConfirmDeleteAllDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.layout = QVBoxLayout()
+        message = QLabel("You are about to delete all rows to be inserted. Are you sure?")
+        self.layout.addWidget(message)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
