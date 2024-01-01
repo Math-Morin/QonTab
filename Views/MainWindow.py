@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-
 from PyQt5.QtWidgets import QMainWindow, QStatusBar
-from Frames.Widgets import CentralWidget
+from Views.CentralWidget import CentralWidget
 
 
 class MainWindow(QMainWindow):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from Frames.Windows import MainWindow
+from Views.MainWindow import MainWindow
 from PyQt5.QtWidgets import QApplication
 
 
